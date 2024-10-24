@@ -1,0 +1,13 @@
+---
+- name: setup gitea
+  hosts: gitea
+  become: yes
+  tasks:
+    - name: install gitea
+      script: /opt/infra/bash/gitea.sh
+- name: setup jenkins
+  hosts: jenkins
+  become: yes
+  tasks:
+    - name: install jenkins
+      script: /opt/infra/bash/jenkins.sh

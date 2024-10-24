@@ -1,0 +1,47 @@
+---
+- name: Update my-react-ui-lib to the latest version
+  hosts: all
+  become: true
+  vars:
+    packages:
+      - nodejs-18.6.0
+      - git
+    dependecies:
+      - react
+      - react-dom
+      - typescript
+  tasks:
+    - name: install curl
+      yum:
+        name: curl
+        state: latest
+    - name: Add repo for nodejs-18.6.0
+      shell: 
+        cmd: curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+    - name: Install the correct version of node
+      yum:
+        name: '{{ packages }}'
+        state: present
+    - name: install production dependecies
+      npm:
+        name: '{{ item }}'
+        state: latest
+        production: true
+        global: true
+      loop: '{{ dependecies }}'
+    - name: create dir for repo
+      file:
+        path: /opt/my-react-ui-lib
+        state: directory
+        mode: '0750'
+        owner: gaber
+    - name: trush repo host key
+      shell:
+        cmd: ssh-keyscan -H 192.168.10.139 >> ~/.ssh/known_hosts
+    - name: Pull the latest library version
+      git:
+        repo: 'git@192.168.10.139:gaber/my-react-ui-lib.git'
+        dest: '/opt/my-react-ui-lib'
+    - name: Install library
+      shell:
+        cmd: npm install /opt/my-react-ui-lib
